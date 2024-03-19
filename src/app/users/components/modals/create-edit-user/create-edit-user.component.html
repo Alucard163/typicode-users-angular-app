@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Редактирование пользователя' : 'Добавление пользователя' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="userForm">
+    <mat-form-field>
+      <input matInput placeholder="Имя" formControlName="name">
+      <mat-error *ngIf="userForm.controls['name'].invalid && userForm.controls['name'].touched">
+        Некорректное имя!
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Логин" formControlName="username">
+      <mat-error *ngIf="userForm.controls['username'].invalid && userForm.controls['username'].touched">
+        Некорректный юзернейм!
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <input matInput placeholder="Email" formControlName="email">
+      <mat-error *ngIf="userForm.controls['email'].invalid && userForm.controls['email'].touched">
+        Некорректный email!
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button mat-button (click)="onCancelClick()">Отмена</button>
+  <button mat-button color="primary" (click)="onSaveClick()">{{ isEdit ? 'Сохранить' : 'Создать' }}</button>
+</mat-dialog-actions>
