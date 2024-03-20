@@ -31,7 +31,7 @@ export class CreateEditUserComponent {
   isEdit: boolean = false;
   constructor(
     private dialogRef: MatDialogRef<CreateEditUserComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: { user: User; isEdit: boolean },
+    @Inject(MAT_DIALOG_DATA) private readonly data: { user: User; isEdit: boolean },
     private formBuilder: FormBuilder,
     private readonly UsersService: UsersService
   ) {
