@@ -8,7 +8,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 })
 export class UsersService {
   private localStorageKey = 'users';
-  public users: User[] = []
+  public users: User[] = [];
   private usersSubject: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
   constructor(
