@@ -28,44 +28,36 @@ import { MatButtonModule } from "@angular/material/button";
 })
 export class CreateEditUserComponent {
   userForm: FormGroup;
-  isEdit: boolean = false;
   constructor(
     private dialogRef: MatDialogRef<CreateEditUserComponent>,
-    @Inject(MAT_DIALOG_DATA) private readonly data: { user: User; isEdit: boolean },
     private formBuilder: FormBuilder,
-    private readonly UsersService: UsersService
+    private readonly UsersService: UsersService,
+    @Inject(MAT_DIALOG_DATA) private readonly user?: User,
   ) {
-    this.isEdit = this.data.isEdit || false;
 
     this.userForm = this.formBuilder.group({
-      name: [this.data?.user?.name || '', Validators.required],
-      username: [this.data?.user?.username || '', Validators.required],
-      id: [
-        this.data?.user?.id || this.UsersService.users.length + 1,
-        Validators.required
-      ],
-      email: [this.data?.user?.email || '', [Validators.required, Validators.email]]
+      name: [this.user?.name || '', Validators.required],
+      username: [this.user?.username || '', Validators.required],
+      id: [this.user?.id || ''],
+      email: [this.user?.email || '', [Validators.required, Validators.email]]
     });
 
     if (this.isEdit) {
-      this.userForm.patchValue({
-        name: this.data.user.name,
-        username: this.data.user.username,
-        email: this.data.user.email
-      });
+      const modifiedUser = {...this.user};
+      this.userForm.patchValue(modifiedUser);
     }
   }
 
-  onCancelClick(): void {
-    this.dialogRef.close();
+  get isEdit(): boolean {
+    return Boolean(this.user);
   }
 
+  onDialogCloseClick(user?: User): void {
+    this.dialogRef.close(user);
+  }
 
-  onSaveClick(): void {
-    if (this.userForm.valid) {
-      const userData = this.userForm.value;
-      this.dialogRef.close(userData);
-    }
+  onValidateField(field: string): boolean {
+    return this.userForm.controls[field].invalid && this.userForm.controls[field].touched;
   }
 
 }

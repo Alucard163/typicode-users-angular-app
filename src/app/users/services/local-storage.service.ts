@@ -9,13 +9,11 @@ export class LocalStorageService {
     return localStorage.getItem(key) || null;
   }
 
-  setItem(key: string, data: string): string {
+  setItem(key: string, data: string): void {
     localStorage.setItem(key, data);
-    return data;
   }
 
-  removeItem(key: string): boolean {
+  removeItem(key: string): void {
     localStorage.removeItem(key);
-    return true;
   }
 }

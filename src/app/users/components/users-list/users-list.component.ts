@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from "@angular/material/dialog";
-import { first, Observable, tap } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { User } from "../../interfaces/user.interface";
 
 import { UsersApiService } from "../../services/users-api.service";
@@ -11,6 +12,7 @@ import { LocalStorageService } from "../../services/local-storage.service";
 
 import { UserCardComponent } from "../user-card/user-card/user-card.component";
 import { CreateEditUserComponent } from "../modals/create-edit-user/create-edit-user.component";
+import { LOCAL_STORAGE_USERS_KEY } from "../../../core/constants/storage-keys.constant";
 
 @Component({
   selector: 'app-users-list',
@@ -26,59 +28,41 @@ import { CreateEditUserComponent } from "../modals/create-edit-user/create-edit-
   styleUrl: './users-list.component.sass'
 })
 export class UsersListComponent {
-  public users: Observable<User[]> = this.UsersService.getUsers();
+  public users: Observable<User[]> = this.usersService.getUsers();
+  private readonly destroyRef = inject(DestroyRef);
   constructor(
-    public UsersService: UsersService,
-    private readonly UsersApiService: UsersApiService,
+    public usersService: UsersService,
+    private readonly usersApiService: UsersApiService,
     private readonly localStorageService: LocalStorageService,
     private dialog: MatDialog
   ) {
-    const storedData = this.localStorageService.getItem('users');
+    const storedData = this.localStorageService.getItem(LOCAL_STORAGE_USERS_KEY);
 
     if (storedData) {
-      this.UsersService.setUsers(JSON.parse(storedData));
+      this.usersService.setUsers(JSON.parse(storedData));
     } else {
-      this.UsersApiService.getUsers()
+      this.usersApiService.getUsers()
         .pipe(
-          first(),
-          tap((users: User[]) => this.UsersService.setUsers(users)),
+          tap((users: User[]) => this.usersService.setUsers(users)),
+          takeUntilDestroyed(this.destroyRef),
         )
         .subscribe();
     }
   }
 
-  openAddUserDialog(): void {
+  openAddEditUserDialog(user?: User): void {
     const dialogRef = this.dialog.open(CreateEditUserComponent, {
-      width: '400px',
-      data: { isEdit: false }
+      data: user,
     });
 
     dialogRef.afterClosed()
       .pipe(
-        first(),
-        tap((result: User) => {
-          if (result) {
-            this.UsersService.addUser(result);
-          }
-        })
-      )
-      .subscribe();
-  }
-
-  openEditUserDialog(user: User): void {
-    const dialogRef = this.dialog.open(CreateEditUserComponent, {
-      width: '400px',
-      data: { isEdit: true, user }
-    });
-
-    dialogRef.afterClosed()
-      .pipe(
-        first(),
         tap(result => {
           if (result) {
-            this.UsersService.editUser(result);
+            this.usersService.editUser(result);
           }
-        })
+        }),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
   }

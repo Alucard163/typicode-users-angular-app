@@ -1,24 +1,24 @@
 <h2 mat-dialog-title>{{ isEdit ? 'Редактирование пользователя' : 'Добавление пользователя' }}</h2>
 
 <mat-dialog-content>
-  <form [formGroup]="userForm">
+  <form [formGroup]="userForm" class="form">
     <mat-form-field>
       <input matInput placeholder="Имя" formControlName="name">
-      <mat-error *ngIf="userForm.controls['name'].invalid && userForm.controls['name'].touched">
+      <mat-error *ngIf="onValidateField('name')">
         Некорректное имя!
       </mat-error>
     </mat-form-field>
 
     <mat-form-field>
       <input matInput placeholder="Логин" formControlName="username">
-      <mat-error *ngIf="userForm.controls['username'].invalid && userForm.controls['username'].touched">
+      <mat-error *ngIf="onValidateField('username')">
         Некорректный юзернейм!
       </mat-error>
     </mat-form-field>
 
     <mat-form-field>
       <input matInput placeholder="Email" formControlName="email">
-      <mat-error *ngIf="userForm.controls['email'].invalid && userForm.controls['email'].touched">
+      <mat-error *ngIf="onValidateField('email')">
         Некорректный email!
       </mat-error>
     </mat-form-field>
@@ -26,6 +26,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button mat-button (click)="onCancelClick()">Отмена</button>
-  <button mat-button color="primary" (click)="onSaveClick()">{{ isEdit ? 'Сохранить' : 'Создать' }}</button>
+  <button mat-button (click)="onDialogCloseClick()">Отмена</button>
+  <button mat-button color="primary" (click)="userForm.valid ? onDialogCloseClick(userForm.value) : null">{{ isEdit ? 'Сохранить' : 'Создать' }}</button>
 </mat-dialog-actions>

@@ -4,7 +4,7 @@ import { NgForOf } from "@angular/common";
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
-import { User, UserGeo} from "../../../interfaces/user.interface";
+import { User } from "../../../interfaces/user.interface";
 
 @Component({
   selector: 'app-user-card',
@@ -19,8 +19,8 @@ import { User, UserGeo} from "../../../interfaces/user.interface";
 })
 export class UserCardComponent {
   @Input({ required: true }) user!: User;
-  @Output('delete') deleteCard: EventEmitter<number> = new EventEmitter<number>();
-  @Output('edit') editCard: EventEmitter<User> = new EventEmitter<User>();
+  @Output('delete') deleteCard = new EventEmitter<number>();
+  @Output('edit') editCard = new EventEmitter<User>();
 
   constructor() { }
 
