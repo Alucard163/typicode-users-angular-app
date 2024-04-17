@@ -1,89 +1,45 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
+
 import { User } from "../interfaces/user.interface";
 import { LocalStorageService } from "./local-storage.service";
-import {BehaviorSubject,  Observable } from "rxjs";
+import { UsersApiService } from "./users-api.service";
+import { UsersListFacade } from "../data-access/+state/users.facade";
 import { LOCAL_STORAGE_USERS_KEY } from "../../core/constants/storage-keys.constant";
+
+import { of, tap } from "rxjs";
+
+import { parseJSON } from "../shared/helpers/localStorageHelpers";
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsersService {
   private localStorageKey = LOCAL_STORAGE_USERS_KEY;
-  public users: User[] = [];
-  private users$$  = new BehaviorSubject<User[]>([]);
+  private usersListFacade = inject(UsersListFacade);
+  private parseJSON = parseJSON;
 
   constructor(
-    private localStorageService: LocalStorageService
-  ) {
-   try {
-     const storedUsers = localStorageService.getItem(this.localStorageKey);
+    private localStorageService: LocalStorageService,
+    private usersApiService: UsersApiService,
+  ) {}
 
-     if (storedUsers) {
-       this.setUsers(this.parseUsers(storedUsers));
-     }
-   } catch (error) {
-     console.error('Error parsing users from localStorage', error);
-   }
-  }
-
-  private parseUsers(jsonString: string): any {
+  initUsers() {
     try {
-      return JSON.parse(jsonString);
+      const storedUsers = this.localStorageService.getItem(this.localStorageKey);
+
+      if (storedUsers) {
+        this.usersListFacade.setUsers(this.parseJSON(storedUsers));
+
+        return of(this.parseJSON(storedUsers));
+      } else {
+        return this.usersApiService.getUsers()
+          .pipe(
+            tap((users: User[]) => this.usersListFacade.setUsers(users)),
+          )
+      }
     } catch (error) {
-      console.error('Error parsing users JSON string', error);
+      console.error('Error parsing users from localStorage', error);
       throw error;
     }
-  }
-
-  private stringifyUsers(users: unknown): string {
-    try {
-      return JSON.stringify(users);
-    } catch (error) {
-      console.error('Error stringifying users', error);
-      throw error;
-    }
-  }
-
-  getUsers(): Observable<User[]> {
-    return this.users$$.asObservable();
-  }
-
-  setUsers(users: User[]): void {
-    this.users = users;
-    try {
-      this.localStorageService.setItem(this.localStorageKey, this.stringifyUsers(this.users));
-      this.users$$.next(users);
-    } catch (error) {
-      console.error('Error saving users to localStorage', error);
-    }
-  }
-
-  addUser(user: User): void {
-    this.users = [...this.users, user];
-    this.localStorageService.setItem(this.localStorageKey, this.stringifyUsers(this.users));
-    this.users$$.next(this.users);
-  }
-
-  editUser(updatedUser: User): void {
-    if (updatedUser.id) {
-      this.users = this.users.map(user => {
-        return user.id === updatedUser.id
-          ? {...user, ...updatedUser}
-          : user
-      })
-    } else {
-      this.users = [
-        ...this.users,
-        {...updatedUser, id: this.users.length + 1}
-      ]
-    }
-    this.localStorageService.setItem(this.localStorageKey, this.stringifyUsers(this.users));
-    this.users$$.next(this.users);
-  }
-
-  removeUser(userId: number): void {
-    this.users = this.users.filter(user => user.id !== userId);
-    this.localStorageService.setItem(this.localStorageKey, this.stringifyUsers(this.users));
-    this.users$$.next(this.users);
   }
 }

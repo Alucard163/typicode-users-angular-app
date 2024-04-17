@@ -11,9 +11,9 @@
   </div>
 
   <app-user-card
-    *ngFor="let user of users | async"
+    *ngFor="let user of users$ | async"
     [user]="user"
-    (delete)="usersService.removeUser($event)"
+    (delete)="usersListFacade.deleteUser($event)"
     (edit)="openAddEditUserDialog(user)"
   />
 </div>

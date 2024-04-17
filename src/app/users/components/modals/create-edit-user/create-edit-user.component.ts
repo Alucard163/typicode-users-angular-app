@@ -2,7 +2,6 @@ import { Component, Inject } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { FormsModule, FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 
-import { UsersService } from "../../../services/users.service";
 import { User } from "../../../interfaces/user.interface";
 
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
@@ -31,7 +30,6 @@ export class CreateEditUserComponent {
   constructor(
     private dialogRef: MatDialogRef<CreateEditUserComponent>,
     private formBuilder: FormBuilder,
-    private readonly UsersService: UsersService,
     @Inject(MAT_DIALOG_DATA) private readonly user?: User,
   ) {
 
